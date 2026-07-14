@@ -1,5 +1,5 @@
 -- Detach and initialize a Lycoris instance.
-local Lycoris = { queued = false, silent = false, dpscanning = false, norpc = false }
+local Merciless = { queued = false, silent = false, dpscanning = false, norpc = false }
 
 ---@module Utility.Logger
 local Logger = require("Utility/Logger")
@@ -391,4 +391,4 @@ function Lycoris.detach()
 end
 
 -- Return Lycoris module.
-return Lycoris
+return Merciless
