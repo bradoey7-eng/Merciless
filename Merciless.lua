@@ -301,7 +301,7 @@ function Lycoris.init()
 	end
 
 	bloxstrapRPCModule.SetRichPresence({
-		details = "Lycoris Rewrite (Attached)",
+		details = "Merciless (Attached)",
 		state = string.format(
 			"Currently attached to the script - time elapsed is a session of %s time spent.",
 			LRM_UserNote and "using" or "developing"
@@ -370,7 +370,7 @@ function Lycoris.detach()
 
 	if bloxstrapRPCModule then
 		bloxstrapRPCModule.SetRichPresence({
-			details = "Lycoris Rewrite (Detached)",
+			details = "Merciless (Detached)",
 			state = LRM_UserNote and "Detached from script - something broke or a hot-reload."
 				or "Detached from script - something broke, fixing a bug, or a hot-reload.",
 			timeStart = PersistentData.get("fli") or os.time(),
