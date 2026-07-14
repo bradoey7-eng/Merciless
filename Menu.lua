@@ -29,7 +29,7 @@ local VisualsTab = require("Menu/VisualsTab")
 local ExploitTab = require("Menu/ExploitTab")
 
 ---@module Menu.LycorisTab
-local LycorisTab = require("Menu/LycorisTab")
+local LycorisTab = require("Menu/LycorisTab")   -- we'll rename this folder later if needed
 
 ---@module Utility.Logger
 local Logger = require("Utility/Logger")
@@ -55,160 +55,46 @@ local renderStepped = Signal.new(runService.RenderStepped)
 -- Maids.
 local menuMaid = Maid.new()
 
--- Constants.
+-- Title - changed to generic
 local MENU_TITLE = "Merciless | Deepwoken"
-
-if LRM_UserNote then
-	MENU_TITLE = string.format(
-		"(Commit %s) Merciless | Deepwoken",
-		string.sub("6c10af8d79e3dc253ba6db7f343613361c37e378", 1, 6)
-	)
-end
 
 ---Initialize menu.
 function Menu.init()
-	-- Create window.
 	local window = Library:CreateWindow({
 		Title = MENU_TITLE,
 		Center = true,
-		AutoShow = not shared.Lycoris.silent,
+		AutoShow = not shared.Merciless.silent,
 		TabPadding = 8,
 		MenuFadeTime = 0.0,
 	})
 
-	-- Configure ThemeManager.
 	ThemeManager:SetLibrary(Library)
-	ThemeManager:SetFolder("Lycoris-Rewrite-Themes")
+	ThemeManager:SetFolder("Merciless-Themes")
 
-	-- Configure SaveManager.
 	SaveManager:SetLibrary(Library)
 	SaveManager:IgnoreThemeSettings()
-	SaveManager:SetFolder("Lycoris-Rewrite-Configs")
+	SaveManager:SetFolder("Merciless-Configs")
 	SaveManager:SetIgnoreIndexes({
-		"Fly",
-		"NoClip",
-		"Speedhack",
-		"InfiniteJump",
-		"TweenToObjective",
-		"TweenToBack",
+		"Fly", "NoClip", "Speedhack", "InfiniteJump",
+		"TweenToObjective", "TweenToBack",
 	})
 
-	-- Initialize all tabs. Don't initialize them if we have the 'exploit_tester' role.
 	CombatTab.init(window)
 	BuilderTab.init(window)
 	GameTab.init(window)
 	VisualsTab.init(window)
 	AutomationTab.init(window)
 	ExploitTab.init(window)
-	LycorisTab.init(window)
+	LycorisTab.init(window)   -- this tab name can be changed later
 
-	-- Last update.
-	local lastUpdate = os.clock()
-
-	-- Update watermark.
-	menuMaid:add(renderStepped:connect(
-		"Menu_WatermarkUpdate",
-		LPH_NO_VIRTUALIZE(function()
-			if os.clock() - lastUpdate <= 0.5 then
-				return
-			end
-
-			lastUpdate = os.clock()
-
-			-- Get stats.
-			local networkStats = stats:FindFirstChild("Network")
-			local workspaceStats = stats:FindFirstChild("Workspace")
-			local performanceStats = stats:FindFirstChild("PerformanceStats")
-			local serverStats = networkStats and networkStats:FindFirstChild("ServerStatsItem") or nil
-
-			-- Get data.
-			local pingData = serverStats and serverStats:FindFirstChild("Data Ping") or nil
-			local heartbeatData = workspaceStats and workspaceStats:FindFirstChild("Heartbeat") or nil
-			local cpuData = performanceStats and performanceStats:FindFirstChild("CPU") or nil
-			local gpuData = performanceStats and performanceStats:FindFirstChild("GPU") or nil
-
-			-- Set values.
-			local ping = pingData and pingData:GetValue() or 0.0
-			local fps = heartbeatData and heartbeatData:GetValue() or 0.0
-			local cpu = cpuData and cpuData:GetValue() or 0.0
-			local gpu = gpuData and gpuData:GetValue() or 0.0
-
-			-- Character data.
-			local mouse = players.LocalPlayer and players.LocalPlayer:GetMouse()
-			local character = players.LocalPlayer and players.LocalPlayer.Character
-			local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-			local position = humanoidRootPart and humanoidRootPart.Position
-			local positionFormat = position and string.format("(%.2f, %.2f, %.2f)", position.X, position.Y, position.Z)
-				or "N/A"
-
-			-- String.
-			local str = string.format("%s | %.2fms | %.1f/s | %.1fms | %.1fms", MENU_TITLE, ping, fps, cpu, gpu)
-
-			if Configuration.expectToggleValue("ShowDebugInformation") then
-				str = str .. string.format(" | %s", positionFormat)
-				str = str .. string.format(" | %s", mouse and mouse.Target and mouse.Target:GetFullName() or "N/A")
-			end
-
-			-- Set watermark.
-			Library:SetWatermark(str)
-		end)
-	))
-
-	local inputBegan = Signal.new(userInputService.InputBegan)
-
-	inputBegan:connect("Menu_InputBegan", function(input, gameProcessed)
-		if gameProcessed then
-			return
-		end
-
-		if not Configuration.expectToggleValue("ShowDebugInformation") then
-			return
-		end
-
-		if input.KeyCode == Enum.KeyCode.F8 then
-			local mouse = players.LocalPlayer and players.LocalPlayer:GetMouse()
-			local target = mouse and mouse.Target
-			if not target then
-				return
-			end
-
-			target.Name = tostring(math.random(100000, 1000000))
-
-			return Logger.mnnotify("The target has been renamed to '%s' as a marker.", target.Name)
-		end
-
-		if input.KeyCode == Enum.KeyCode.Equals and Library.Recording then
-			local Character = players.LocalPlayer and players.LocalPlayer.Character
-			local HumanoidRootPart = Character and Character:FindFirstChild("HumanoidRootPart")
-			local Position = HumanoidRootPart and HumanoidRootPart.Position
-			local PositionFormat = Position
-					and string.format("CFrame.new(%.2f, %.2f, %.2f)", Position.X, Position.Y, Position.Z)
-				or "N/A"
-
-			Library.PositionList[#Library.PositionList + 1] = PositionFormat
-		end
-	end)
-
-	-- Configure Library.
-	Library.ToggleKeybind = Options.MenuKeybind
-
-	-- Load auto-load config.
-	SaveManager:LoadAutoloadConfig()
-
-	-- Log menu initialization.
 	Logger.warn("Menu initialized.")
 end
 
 ---Detach menu.
 function Menu.detach()
 	menuMaid:clean()
-
 	BuilderTab.detach()
-
 	Library:Unload()
-
-	Logger.warn("Menu detached.")
 end
 
--- Return Menu module.
 return Menu
