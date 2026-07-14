@@ -56,11 +56,11 @@ local renderStepped = Signal.new(runService.RenderStepped)
 local menuMaid = Maid.new()
 
 -- Constants.
-local MENU_TITLE = "Linoria V2 | Deepwoken"
+local MENU_TITLE = "Merciless | Deepwoken"
 
 if LRM_UserNote then
 	MENU_TITLE = string.format(
-		"(Commit %s) Linoria V2 | Deepwoken First Release",
+		"(Commit %s) Merciless | Deepwoken",
 		string.sub("6c10af8d79e3dc253ba6db7f343613361c37e378", 1, 6)
 	)
 end
