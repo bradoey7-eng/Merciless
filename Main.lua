@@ -22,7 +22,7 @@ end
 local Profiler = require("Utility/Profiler")
 
 ---@module Lycoris
-local Lycoris = require("Lycoris")
+local Merciless = require("Merciless")
 
 ---Find existing instances and initialize the script.
 local function initializeScript()
@@ -36,8 +36,8 @@ local function initializeScript()
 	end
 
 	-- Re-initialize under the new state.
-	shared.Lycoris = Lycoris
-	shared.Lycoris.init()
+	shared.Merciless = Merciless
+	shared.Merciless.init()
 end
 
 ---This is called when the initalization errors.
